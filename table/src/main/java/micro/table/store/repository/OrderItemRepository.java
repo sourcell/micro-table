@@ -16,7 +16,7 @@ public class OrderItemRepository {
     //       currently: tableId
     Map<String, List<OrderItemsState>> orders = new HashMap<>();
 
-    void add(String tableId, List<OrderItemsState> orders) {
+    public void add(String tableId, List<OrderItemsState> orders) {
         List<OrderItemsState> ordersByTableId = this.orders.get(tableId);
         if (ordersByTableId == null) {
             this.orders.put(tableId, new ArrayList<>(orders));
@@ -26,11 +26,11 @@ public class OrderItemRepository {
     }
 
     // TODO: wtf?
-    void modifyState(List<String> orderId, OrderStateEnum state) {
+    public void modifyState(List<String> orderId, OrderStateEnum state) {
 
     }
 
-    void delete(List<String> orderId) {
+    public void delete(List<String> orderId) {
         List<OrderItemsState> allOrders = new ArrayList<>();
         orders.forEach((key, value) -> {
             allOrders.addAll(value);
@@ -41,11 +41,11 @@ public class OrderItemRepository {
         });
     }
 
-    void clear(String tableId) {
+    public void clear(String tableId) {
         orders.put(tableId, new ArrayList<>());
     }
 
-    List<OrderItemsState> getAll(String tableId) {
+    public List<OrderItemsState> getAll(String tableId) {
         return orders.get(tableId);
     }
 
