@@ -12,17 +12,19 @@ import java.util.Map;
 @Service
 public class OrderItemRepository {
 
-    // TODO: is the hash key orderId or tableId?
-    //       currently: tableId
     Map<String, List<OrderItemsState>> orders = new HashMap<>();
 
     public void add(String tableId, List<OrderItemsState> orders) {
-        List<OrderItemsState> ordersByTableId = this.orders.get(tableId);
-        if (ordersByTableId == null) {
-            this.orders.put(tableId, new ArrayList<>(orders));
-        } else {
-            ordersByTableId.addAll(orders);
+        if (this.orders.get(tableId) == null) {
+            clear(tableId);
         }
+        orders.forEach(orderItemsState -> {
+            this.orders.get(tableId).stream()
+                    .filter(item -> item.getState() == orderItemsState.getState())
+                    .findFirst().orElseThrow()
+                    .getOrders()
+                    .addAll(orderItemsState.getOrders());
+        });
     }
 
     // TODO: wtf?
@@ -43,6 +45,11 @@ public class OrderItemRepository {
 
     public void clear(String tableId) {
         orders.put(tableId, new ArrayList<>());
+        List<OrderItemsState> orderItemsStates = orders.get(tableId);
+        orderItemsStates.add(OrderItemsState.builder().orders(new ArrayList<>()).state(OrderStateEnum.ordered).build());
+        orderItemsStates.add(OrderItemsState.builder().orders(new ArrayList<>()).state(OrderStateEnum.completed).build());
+        orderItemsStates.add(OrderItemsState.builder().orders(new ArrayList<>()).state(OrderStateEnum.delivered).build());
+        orderItemsStates.add(OrderItemsState.builder().orders(new ArrayList<>()).state(OrderStateEnum.paid).build());
     }
 
     public List<OrderItemsState> getAll(String tableId) {

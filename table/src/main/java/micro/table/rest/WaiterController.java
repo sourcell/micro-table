@@ -3,9 +3,11 @@ package micro.table.rest;
 import micro.table.datamodel.OrderItem;
 import micro.table.store.repository.OrderItemRepository;
 import micro.table.store.service.OrderItemsState;
+import micro.table.store.service.OrderStateEnum;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -24,9 +26,17 @@ public class WaiterController {
         // TODO ...
     }
 
-    @PostMapping("/order")
-    public void order(List<OrderItem> orders) {
-        // TODO: which table?
+    @PostMapping("/order/{tableId}") // TODO: tableId needed?
+    public void order(@PathVariable String tableId,
+                      @RequestBody List<OrderItem> orders) {
+
+        List<OrderItemsState> list = new ArrayList<>();
+        list.add(OrderItemsState.builder()
+                        .orders(orders)
+                        .state(OrderStateEnum.ordered)
+                        .build());
+        orderItemRepository.add(tableId, list);
+
     }
 
     @PutMapping("/delivery")
