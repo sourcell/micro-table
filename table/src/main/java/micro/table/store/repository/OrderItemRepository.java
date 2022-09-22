@@ -27,9 +27,8 @@ public class OrderItemRepository {
         });
     }
 
-    // TODO: wtf?
     public void modifyState(List<String> orderId, OrderStateEnum state) {
-
+        // TODO: how?
     }
 
     public void delete(List<String> orderId) {

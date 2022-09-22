@@ -10,7 +10,7 @@ import java.util.List;
 
 @Data
 @NoArgsConstructor
-public class OrderItemsState {
+public class OrderItemsState { // TODO: is this class really needed?
 
     private List<OrderItem> orders = new ArrayList<>();
     private OrderStateEnum state;
