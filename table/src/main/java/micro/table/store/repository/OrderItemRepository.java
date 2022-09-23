@@ -1,5 +1,6 @@
 package micro.table.store.repository;
 
+import micro.table.datamodel.OrderItem;
 import micro.table.store.service.OrderItemsState;
 import micro.table.store.service.OrderStateEnum;
 import org.springframework.stereotype.Service;
@@ -28,7 +29,31 @@ public class OrderItemRepository {
     }
 
     public void modifyState(List<String> orderId, OrderStateEnum state) {
-        // TODO: how?
+        for (String id : orderId) {
+            OrderItemsState source = null;
+            OrderItemsState target = null;
+            OrderItem item = null;
+            for (List<OrderItemsState> table : orders.values()) {
+                for (OrderItemsState orderItemsState : table) {
+                    if (orderItemsState.getState() == state) {
+                        target = orderItemsState;
+                    }
+                    for (OrderItem orderItem : orderItemsState.getOrders()) {
+                        if (orderItem.getOrderId().equals(id)) {
+                            source = orderItemsState;
+                            item = orderItem;
+                            break;
+                        }
+                    }
+                }
+            }
+            if (source != null && target != null) {
+                source.getOrders().remove(item);
+                target.getOrders().add(item);
+            } else {
+                throw new RuntimeException();
+            }
+        }
     }
 
     public void delete(List<String> orderId) {
