@@ -12,14 +12,18 @@ import micro.table.store.repository.OrderItemRepository;
 import micro.table.store.service.OrderItemsState;
 import micro.table.store.service.OrderStateEnum;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
+import javax.validation.constraints.Pattern;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
 @CrossOrigin
+@Validated
 @RequestMapping("/waiter")
 public class WaiterController {
 
@@ -45,7 +49,7 @@ public class WaiterController {
             }
     )
     @PutMapping("/payment/{tableId}")
-    public void payment(@PathVariable String tableId) {
+    public void payment(@PathVariable @Pattern(regexp = "^\\d{3}$", message = "error.tableId.regex") String tableId) {
         List<OrderItemsState> orders = orderItemRepository.getAll(tableId);
         List<String> orderIds = new ArrayList<>();
         orders.forEach(orderItemsState -> {
@@ -71,8 +75,8 @@ public class WaiterController {
             }
     )
     @PostMapping("/order/{tableId}")
-    public void order(@PathVariable String tableId,
-                      @RequestBody List<OrderItem> orders) {
+    public void order(@PathVariable @Pattern(regexp = "^\\d{3}$", message = "error.tableId.regex") String tableId,
+                      @RequestBody List<@Valid OrderItem> orders) { // TODO: validate list of objects?
         List<OrderItemsState> list = new ArrayList<>();
         list.add(OrderItemsState.builder()
                         .orders(orders)
@@ -107,7 +111,7 @@ public class WaiterController {
     })
     @Operation(summary = "Egy asztalhoz tartozó rendelések státuszainak lekérdezése")
     @GetMapping("/statuses/{tableId}")
-    List<OrderItemsState> getOrdersStatuses(@PathVariable String tableId) {
+    List<OrderItemsState> getOrdersStatuses(@PathVariable @Pattern(regexp = "^\\d{3}$", message = "error.tableId.regex") String tableId) {
         return orderItemRepository.getAll(tableId);
     }
 
