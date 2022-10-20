@@ -1,0 +1,47 @@
+<db:databaseChangeLog xmlns:db="http://www.liquibase.org/xml/ns/dbchangelog"
+                      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                      xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.2.xsd">
+
+    <db:changeSet id="create-table-from-object" author="marcell">
+        <db:createTable tableName="order_item">
+            <db:column name="id" type="varchar(255)"  >
+                <db:constraints nullable="false"/>
+            </db:column>
+            <db:column name="table_id" type="varchar(255)"/>
+            <db:column name="food_id" type="varchar(255)"/>
+            <db:column name="quantity" type="INT"/>
+            <db:column name="note" type="varchar(255)"/>
+            <db:column name="note4all" type="BOOLEAN"/>
+            <db:column name="group_name" type="varchar(255)"/>
+            <db:column name="state" type="varchar(255)"/>
+        </db:createTable>
+        <db:createIndex tableName="order_item" indexName="order_item-id">
+            <db:column name="id"/>
+        </db:createIndex>
+    </db:changeSet>
+
+    <db:changeSet id="hibernate_sequences" author="marcell">
+        <db:createTable tableName="hibernate_sequences">
+            <db:column name="sequence_name" type="varchar(255)"/>
+            <db:column name="next_val" type="BIGINT"/>
+        </db:createTable>
+    </db:changeSet>
+
+    <!--
+    <db:changeSet id="init-data" author="marcell">
+        <db:preConditions onFail="MARK_RAN">
+            <db:sqlCheck expectedResult="0">
+                SELECT count(0) FROM order_item WHERE state='ordered'
+            </db:sqlCheck>
+        </db:preConditions>
+        <db:insert tableName="order_item">
+            ...
+        </db:insert>
+        <db:insert tableName="hibernate_sequences">
+            <db:column name="sequence_name" value="default"/>
+            <db:column name="next_val" value="..."/>
+        </db:insert>
+    </db:changeSet>
+    -->
+
+</db:databaseChangeLog>

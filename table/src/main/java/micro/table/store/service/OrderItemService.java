@@ -1,22 +1,22 @@
 package micro.table.store.service;
 
 import micro.table.datamodel.OrderItem;
-import micro.table.store.repository.FakeOrderItemRepository;
+import micro.table.store.repository.OrderItemRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
 public class OrderItemService {
 
-    //Map<String, List<OrderItemsState>> orders = new HashMap<>();
     @Autowired
-    private final FakeOrderItemRepository orderItemRepository;
+    private final OrderItemRepository orderItemRepository;
 
-    public OrderItemService(FakeOrderItemRepository orderItemRepository) {
+    public OrderItemService(OrderItemRepository orderItemRepository) {
         this.orderItemRepository = orderItemRepository;
     }
 
@@ -28,7 +28,8 @@ public class OrderItemService {
     public void modifyState(List<String> orderIds, OrderStateEnum state) {
         List<OrderItem> orders = new ArrayList<>();
         orderIds.forEach(id -> {
-            orders.add(orderItemRepository.findById(id));
+            Optional<OrderItem> optional = orderItemRepository.findById(id);
+            optional.ifPresent(orders::add);
         });
 
         orders.forEach(orderItem -> orderItem.setState(state));
