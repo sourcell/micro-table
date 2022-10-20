@@ -8,7 +8,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import micro.table.datamodel.OrderItem;
-import micro.table.store.repository.OrderItemRepository;
+import micro.table.store.service.OrderItemService;
 import micro.table.store.service.OrderItemsState;
 import micro.table.store.service.OrderStateEnum;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,10 +28,10 @@ import java.util.stream.Collectors;
 public class WaiterController {
 
     @Autowired
-    private final OrderItemRepository orderItemRepository;
+    private final OrderItemService orderItemService;
 
-    public WaiterController(OrderItemRepository orderItemRepository) {
-        this.orderItemRepository = orderItemRepository;
+    public WaiterController(OrderItemService orderItemService) {
+        this.orderItemService = orderItemService;
     }
 
     @ApiResponses(value = {
@@ -50,14 +50,14 @@ public class WaiterController {
     )
     @PutMapping("/payment/{tableId}")
     public void payment(@PathVariable @Pattern(regexp = "^\\d{3}$", message = "error.tableId.regex") String tableId) {
-        List<OrderItemsState> orders = orderItemRepository.getAll(tableId);
+        List<OrderItemsState> orders = orderItemService.getAll(tableId);
         List<String> orderIds = new ArrayList<>();
         orders.forEach(orderItemsState -> {
             orderIds.addAll(orderItemsState.getOrders().stream()
-                    .map(OrderItem::getOrderId)
+                    .map(OrderItem::getId)
                     .collect(Collectors.toList()));
         });
-        orderItemRepository.modifyState(orderIds, OrderStateEnum.paid);
+        orderItemService.modifyState(orderIds, OrderStateEnum.paid);
     }
 
     @ApiResponses(value = {
@@ -76,13 +76,12 @@ public class WaiterController {
     )
     @PostMapping("/order/{tableId}")
     public void order(@PathVariable @Pattern(regexp = "^\\d{3}$", message = "error.tableId.regex") String tableId,
-                      @RequestBody List<@Valid OrderItem> orders) { // TODO: validate list of objects?
-        List<OrderItemsState> list = new ArrayList<>();
-        list.add(OrderItemsState.builder()
-                        .orders(orders)
-                        .state(OrderStateEnum.ordered)
-                        .build());
-        orderItemRepository.add(tableId, list);
+                      @RequestBody List<@Valid OrderItem> orders) {
+        orders.forEach(orderItem -> {
+            orderItem.setTableId(tableId);
+            orderItem.setState(OrderStateEnum.ordered);
+        });
+        orderItemService.add(tableId, orders);
     }
 
     @ApiResponses(value = {
@@ -101,7 +100,7 @@ public class WaiterController {
     )
     @PutMapping("/delivery")
     public void deliver(@RequestBody List<String> orderIds) {
-        orderItemRepository.modifyState(orderIds, OrderStateEnum.delivered);
+        orderItemService.modifyState(orderIds, OrderStateEnum.delivered);
     }
 
     @ApiResponses(value = {
@@ -112,7 +111,7 @@ public class WaiterController {
     @Operation(summary = "Egy asztalhoz tartozó rendelések státuszainak lekérdezése")
     @GetMapping("/statuses/{tableId}")
     List<OrderItemsState> getOrdersStatuses(@PathVariable @Pattern(regexp = "^\\d{3}$", message = "error.tableId.regex") String tableId) {
-        return orderItemRepository.getAll(tableId);
+        return orderItemService.getAll(tableId);
     }
 
 }
